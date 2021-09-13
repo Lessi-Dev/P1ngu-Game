@@ -1,8 +1,9 @@
 import pygame
+import random
 
 pygame.init()
 
-screen = pygame.display.set_mode((1600, 900))
+screen = pygame.display.set_mode((800, 800))
 
 pygame.display.set_caption('Pingu Gayme')
 icon = pygame.image.load(r"pictures/penguin_icon.png")
@@ -11,12 +12,12 @@ pygame.display.set_icon(icon)
 player_stage1_Img = pygame.image.load(r"pictures/penguin_transformed_1.png")
 player_stage2_Img = pygame.image.load(r"pictures/penguin_transformed_2.png")
 player_stage3_Img = pygame.image.load(r"pictures/penguin_transformed_3.png")
-PlayerX = 800
-PlayerY = 300
+PlayerX = 400
+PlayerY = 400
 PlayerX_change = 0
 PlayerY_change = 0
 transformed = 0
-mirrored = True
+mirrored = 0
 Facing_right = True
 R_down = None
 L_down = None
@@ -42,12 +43,49 @@ def player(xval, yval):
                 player_stage3_Img, True, False), (xval, yval))
 
 
+def positionhandler(PlayerY, PlayerX, mirrored, transformed):
+    if mirrored == 0:
+        if PlayerX >= 800:
+            PlayerX = -64
+        elif PlayerX <= -64:
+            PlayerX = 800
+        if PlayerY >= 900:
+            PlayerY = -64
+        elif PlayerY <= -64:
+            PlayerY = 800
+    elif mirrored == 1:
+        if PlayerX >= 746:
+            PlayerX = 746
+        elif PlayerX <= -10:
+            PlayerX = -10
+        if PlayerY >= 800:
+            PlayerY = 800 - PlayerX
+            PlayerX = 0
+        elif PlayerY <= -64:
+            PlayerY = 800 - PlayerX
+            PlayerX = 746
+    elif mirrored == 2:
+        PlayerX += random.randint(-7, 7)
+        PlayerY += random.randint(-5, 5)
+        if PlayerX >= 800:
+            PlayerX = -50
+        elif PlayerX <= -50:
+            PlayerX = 800
+        if PlayerY >= 800:
+            PlayerY = -70
+        elif PlayerY <= -70:
+            PlayerY = 800
+    return PlayerY, PlayerX
+
+
 running = True
 while running:
-    if mirrored == True:
+    if mirrored == 0:
         screen.fill((162, 210, 223))
-    else:
+    elif mirrored == 1:
         screen.fill((128, 149, 255))
+    elif mirrored == 2:
+        screen.fill((72, 209, 204))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -72,7 +110,10 @@ while running:
                 else:
                     transformed += 1
             if event.key == pygame.K_SPACE:
-                mirrored = not mirrored
+                if mirrored >= 2:
+                    mirrored = 0
+                else:
+                    mirrored += 1
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_d:
                 PlayerX_change = 0
@@ -91,13 +132,6 @@ while running:
     elif transformed == 2:
         PlayerX += PlayerX_change * 3
         PlayerY += PlayerY_change * 3
-    if PlayerX >= 1600:
-        PlayerX = -50
-    elif PlayerX <= -50:
-        PlayerX = 1600
-    if PlayerY >= 900:
-        PlayerY = -70
-    elif PlayerY <= -70:
-        PlayerY = 900
+    PlayerY, PlayerX = positionhandler(PlayerY, PlayerX, mirrored, transformed)
     player(PlayerX, PlayerY)
     pygame.display.update()
